@@ -18,6 +18,8 @@ void signal_handler(int) {
 }
 
 int main() {
+
+    pin_thread_to_core(2);
     
     std::signal(SIGINT, signal_handler);
     std::signal(SIGTERM, signal_handler);
@@ -83,4 +85,27 @@ int main() {
     }
 
     return 0;
+}
+
+bool pin_thread_to_core(int core_id) {
+    
+    cpu_set_t cpuset;
+    
+    CPU_ZERO(&cpuset);
+    CPU_SET(core_id, &cpuset);
+
+    pthread_t current_thread = pthread_self();
+    
+    // pthread_setaffinity_np sets the CPU affinity mask
+    int result = pthread_setaffinity_np(current_thread, sizeof(cpu_set_t), &cpuset);
+    
+    if (result != 0) {
+        std::cerr << "Error pinning thread to core " << core_id << std::endl;
+        
+        return false;
+    }
+    
+    std::cout << "Successfully pinned thread to CPU Core " << core_id << std::endl;
+    
+    return true;
 }

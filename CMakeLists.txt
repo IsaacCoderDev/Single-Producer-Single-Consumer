@@ -15,3 +15,14 @@ target_link_libraries(producer shm_core)
 
 add_executable(consumer src/consumer.cpp)
 target_link_libraries(consumer shm_core)
+
+include(FetchContent)
+FetchContent_Declare(
+  benchmark
+  GIT_REPOSITORY https://github.com/google/benchmark.git
+  GIT_TAG v1.8.3
+)
+FetchContent_MakeAvailable(benchmark)
+
+add_executable(ipc_benchmark src/benchmark.cpp)
+target_link_libraries(ipc_benchmark PRIVATE shm_core benchmark::benchmark pthread)
